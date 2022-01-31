@@ -1,0 +1,18 @@
+{
+  "required": true,
+  "minVersion": "0.4.10",
+  "package": "com.twoandahalfdevs.shaderoutlinefix.mixins",
+  "refmap": "mixin.shaderoutlinefix.refmap.json",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+    "EntityAccessor",
+    "EntityMixin",
+    "GuiIngameMixin",
+    "MinecraftMixin",
+    "RenderGlobalMixin",
+    "RenderItemMixin",
+    "RenderLivingBaseMixin",
+    "RenderManagerMixin",
+    "ShaderLoaderMixin"
+  ]
+}

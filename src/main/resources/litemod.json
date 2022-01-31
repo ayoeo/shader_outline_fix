@@ -1,0 +1,12 @@
+{
+  "name": "shader_outline_fix",
+  "displayName": "Shader Outline Fix",
+  "mcversion": "${mcversion}",
+  "version": "${version}",
+  "author": "aris",
+  "revision": 0,
+  "description": "shaders and outline = BAD. me = fix?",
+  "mixinConfigs": [
+    "mixin.shaderoutlinefix.json"
+  ]
+}
