@@ -19,6 +19,6 @@ class LiteModShadersOutlineFix : LiteMod {
   override fun init(configPath: File?) {
     Outline // load it up
 
-    ResizeWindowEvent().call()
+    ResizeWindowEvent(w, h).call()
   }
 }

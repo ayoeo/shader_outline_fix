@@ -7,11 +7,13 @@
   "mixins": [
     "EntityAccessor",
     "EntityMixin",
+    "EntityRendererMixin",
     "GuiIngameMixin",
+    "ItemStackMixin",
     "MinecraftMixin",
     "RenderGlobalMixin",
-    "RenderItemMixin",
     "RenderLivingBaseMixin",
+    "RenderManagerAccessor",
     "RenderManagerMixin",
     "ShaderLoaderMixin"
   ]

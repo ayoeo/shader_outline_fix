@@ -1,5 +1,6 @@
 package com.twoandahalfdevs.shaderoutlinefix.mixins;
 
+import com.twoandahalfdevs.shaderoutlinefix.PostRenderEntitiesEvent;
 import com.twoandahalfdevs.shaderoutlinefix.RenderEntitiesEvent;
 import net.minecraft.client.renderer.RenderGlobal;
 import net.minecraft.client.renderer.culling.ICamera;
@@ -25,5 +26,21 @@ public class RenderGlobalMixin {
       CallbackInfo info
   ) {
     new RenderEntitiesEvent(partialTicks, camera).call();
+  }
+
+  @Inject(method = "renderEntities",
+      at = @At(
+          value = "INVOKE_STRING",
+          target = "Lnet/minecraft/profiler/Profiler;endStartSection(Ljava/lang/String;)V",
+          args = "ldc=blockentities"
+      )
+  )
+  private void postRenderEntitiesHead(
+      Entity renderViewEntity,
+      ICamera camera,
+      float partialTicks,
+      CallbackInfo info
+  ) {
+    new PostRenderEntitiesEvent(partialTicks, camera).call();
   }
 }

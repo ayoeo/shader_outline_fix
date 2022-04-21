@@ -3,8 +3,12 @@
 uniform sampler2D sampler;
 in vec2 texelSize;
 
-const int borderSize = 3;
-const int innerBorderSize = 2;
+//const int borderSize = 14;
+//const int innerBorderSize = 10;
+//4k lol ^^
+
+uniform float borderSize;
+//uniform float innerBorderSize = 3;
 
 uniform vec4 outlineColor;
 
@@ -35,6 +39,12 @@ vec4 colourAtOffset(vec2 fragCoord, int x, int y) {
 
 const float sqrt2 = sqrt(2);
 vec4 bitchesLoveMyCode(vec2 fragCoord, int i) {
+  //
+  //  vec4 avCol = vec4(0);
+  //  for (int x = -borderSize; x < borderSize; x++) {
+  //    for (int y = -borderSize; x < borderSize; x++) {
+  //      vec4 col = colourAtOffset(fragCoord, -x, -u);
+  //  }
   int u = int(round(float(i) / sqrt2));
   vec4 avCol = vec4(0);
   vec4 tl = colourAtOffset(fragCoord, -u, -u);
@@ -59,22 +69,36 @@ vec4 bitchesLoveMyCode(vec2 fragCoord, int i) {
 }
 
 void outlinePass(vec2 fragCoord, vec4 inColour) {
+  //    vec4 center     = colourAtOffset(fragCoord, 0, 0);
+  //    vec4 up     = colourAtOffset(fragCoord, 0, -1);
+  //    vec4 down     = colourAtOffset(fragCoord, 0, 1);
+  //    vec4 left     = colourAtOffset(fragCoord, -1, 0);
+  //    vec4 right     = colourAtOffset(fragCoord, 1, 0);
+  //    vec4 uDiff = center - up;
+  //    vec4 dDiff = center - down;
+  //    vec4 lDiff = center - left;
+  //    vec4 rDiff = center - right;
+  //    vec4 sum = uDiff + dDiff + lDiff + rDiff;
+  //    vec3 clamped = clamp(center.rgb - sum.rgb, 0.0, 1.0);
+  //    fragColour = vec4(clamped, center.a);
+  //    return;
+
   if (inColour.a > 0) {
     // Paint it black
-    if (bitchesLoveMyCode(fragCoord, innerBorderSize).a < 1|| bitchesLoveMyCode(fragCoord, 1).a < 1) {
-      for (int i = 1; i <= innerBorderSize; i++) {
+    if (bitchesLoveMyCode(fragCoord, int(borderSize * 0.75)).a < 1|| bitchesLoveMyCode(fragCoord, 1).a < 1) {
+      for (int i = 1; i <= int(borderSize * 0.75); i++) {
         vec4 colourAt = bitchesLoveMyCode(fragCoord, i);
         if (colourAt.a < 1) {
           fragColour.rgb = vec3(0);
-          fragColour.a = (1.0 - pow(float(i) / float(innerBorderSize + 1), 0.7));
+          fragColour.a = (1.0 - pow(float(i) / float(borderSize * 0.75 + 1), 0.7));
           return;
         }
       }
     }
   } else {
     // Colour the outside
-    if (bitchesLoveMyCode(fragCoord, borderSize).a > 0 || bitchesLoveMyCode(fragCoord, 1).a > 0) {
-      for (int i = 1; i <= borderSize; i++) {
+    if (bitchesLoveMyCode(fragCoord, int(borderSize)).a > 0 || bitchesLoveMyCode(fragCoord, 1).a > 0) {
+      for (int i = 1; i <= int(borderSize); i++) {
         vec4 colourAt = bitchesLoveMyCode(fragCoord, i);
         if (colourAt.a > 0) {
           fragColour.rgb = colourAt.rgb;

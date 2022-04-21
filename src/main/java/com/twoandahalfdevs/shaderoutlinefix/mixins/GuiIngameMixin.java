@@ -8,6 +8,7 @@ import net.minecraft.client.gui.GuiIngame;
 import net.minecraft.client.gui.ScaledResolution;
 import net.minecraft.client.renderer.EntityRenderer;
 import net.minecraft.client.renderer.GlStateManager;
+import org.lwjgl.opengl.Display;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -32,16 +33,15 @@ public abstract class GuiIngameMixin {
       )
   )
   private void preGuiRender(float f, long f1, CallbackInfo ci) {
-    setupOverlayRendering();
-
-    GlStateManager.pushMatrix();
-    double scaleFactor = new ScaledResolution(Minecraft.getMinecraft()).getScaleFactor();
-    double scale = scaleFactor / Math.pow(scaleFactor, 2.0);
-    GlStateManager.scale(scale, scale, 1);
+    GlStateManager.clear(256);
+    GlStateManager.matrixMode(5889);
+    GlStateManager.loadIdentity();
+    GlStateManager.ortho(0.0D, mc.displayWidth, mc.displayHeight, 0.0D, 1000.0D, 3000.0D);
+    GlStateManager.matrixMode(5888);
+    GlStateManager.loadIdentity();
+    GlStateManager.translate(0.0F, 0.0F, -2000.0F);
 
     Render2DEvent render2DEvent = new Render2DEvent();
     render2DEvent.call();
-
-    GlStateManager.popMatrix();
   }
 }

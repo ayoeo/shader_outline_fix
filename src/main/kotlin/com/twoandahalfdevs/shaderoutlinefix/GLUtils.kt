@@ -1,8 +1,10 @@
 package com.twoandahalfdevs.shaderoutlinefix
 
 import com.mumfrey.liteloader.gl.GL
+import net.minecraft.client.renderer.GlStateManager
 import net.minecraft.client.renderer.Tessellator
 import net.minecraft.client.renderer.vertex.DefaultVertexFormats
+import org.lwjgl.input.Keyboard
 import org.lwjgl.opengl.GL20
 
 data class Colour constructor(var r: Float, var g: Float, var b: Float, var a: Float = 1f) {
@@ -49,6 +51,7 @@ fun blitScreenImage() {
 fun renderTexturedRect(x: Int, y: Int, width: Int, height: Int) {
   GL.glDisableLighting()
   GL.glEnableBlend()
+ 
 
   val tess = Tessellator.getInstance()
   val buffer = tess.buffer
@@ -58,4 +61,8 @@ fun renderTexturedRect(x: Int, y: Int, width: Int, height: Int) {
   buffer.pos((x + width).toDouble(), y.toDouble(), 0.0).tex(1.0, 1.0).endVertex()
   buffer.pos(x.toDouble(), y.toDouble(), 0.0).tex(0.0, 1.0).endVertex()
   tess.draw()
+//  }
+
+//  GL.glEnableLighting()
+//  GL.glDisableBlend()
 }
