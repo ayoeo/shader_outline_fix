@@ -120,6 +120,9 @@ object Outline {
     }
 
     listenFor<PostRenderEntitiesEvent> {
+      if (!LiteModShadersOutlineFix.mod.nametagFix) {
+        return@listenFor
+      }
       val currentFb = GL.glGetInteger(GL30.GL_DRAW_FRAMEBUFFER_BINDING)
       glBindFramebuffer(GL30.GL_READ_FRAMEBUFFER, currentFb)
       glBindFramebuffer(GL30.GL_DRAW_FRAMEBUFFER, nametagFramebuffer.framebufferObject)
@@ -225,7 +228,9 @@ object Outline {
 
     listenFor<RenderNametagEvent> {
 //      if (this.renderingEsp) {
-      it.cancel()
+      if (LiteModShadersOutlineFix.mod.nametagFix) {
+        it.cancel()
+      }
 //      }
     }
 
@@ -234,17 +239,19 @@ object Outline {
       this.framebuffer.bindFramebufferTexture()
 
       colorUniform.set(Colour(0f, 0f, 0f, 0f))
-      borderSizeUnifrom.set(minecraft.displayWidth / 480f)
+      borderSizeUnifrom.set((minecraft.displayWidth / 4800f) * LiteModShadersOutlineFix.mod.borderSize)
       blitScreenImage()
 
       this.framebuffer.unbindFramebufferTexture()
       glUseProgram(0)
 
-      this.nametagFramebuffer.bindFramebufferTexture()
-      glColor4f(1f, 1f, 1f, 1f)
+      if (LiteModShadersOutlineFix.mod.nametagFix) {
+        this.nametagFramebuffer.bindFramebufferTexture()
+        glColor4f(1f, 1f, 1f, 1f)
 
-      blitScreenImage()
-      this.nametagFramebuffer.unbindFramebufferTexture()
+        blitScreenImage()
+        this.nametagFramebuffer.unbindFramebufferTexture()
+      }
     }
   }
 
@@ -345,7 +352,18 @@ object Outline {
     GL20.glUseProgram(current)
   }
 
-  data class ColorMapping(val stencilValue: Int, val outColor: Colour)
+  data class ColorMapping(
+    val stencilValue: Int,
+    private val outColor: Colour,
+    private val colorBlindOutColor: Colour? = null
+  ) {
+    val color: Colour
+      get() = if (!LiteModShadersOutlineFix.mod.colorBlindMode || this.colorBlindOutColor == null) {
+        this.outColor
+      } else {
+        this.colorBlindOutColor
+      }
+  }
 
   // TODO - add all the colors that we need for glowing, check glow color, whatever
 //  maybe change mythic color to make it MORE orange to be easier to see haha
@@ -353,7 +371,7 @@ object Outline {
     ColorMapping(TextFormatting.DARK_RED.ordinal, Colour.hex(0xFFAA0000)),
     ColorMapping(TextFormatting.RED.ordinal, Colour.hex(0xFFFF5555)),
     ColorMapping(TextFormatting.GOLD.ordinal, Colour.hex(0xFFFF8C00)),
-    ColorMapping(TextFormatting.YELLOW.ordinal, Colour.hex(0xFFEDE553)),
+    ColorMapping(TextFormatting.YELLOW.ordinal, Colour.hex(0xFFEDE553), Colour.hex(0xFFFF69B4)),
     ColorMapping(TextFormatting.DARK_GREEN.ordinal, Colour.hex(0xFF00AA00)),
     ColorMapping(TextFormatting.GREEN.ordinal, Colour.hex(0xFF55FF55)),
     ColorMapping(TextFormatting.AQUA.ordinal, Colour.hex(0xFF55FFFF)),
@@ -403,7 +421,7 @@ object Outline {
         val shouldRenderSelf = minecraft.gameSettings.thirdPersonView != 0 || sleeping
         if ((entity !== minecraft.renderViewEntity || shouldRenderSelf) && flag) {
           val color = entity.team?.color?.ordinal ?: TextFormatting.WHITE.ordinal
-          colorUniform.set(colours.first { it.stencilValue == color }.outColor)
+          colorUniform.set(colours.firstOrNull { it.stencilValue == color }?.color ?: colours[15].color)
           minecraft.renderManager.setRenderOutlines(true)
           minecraft.renderManager.renderEntityStatic(entity, partialTicks, false)
           minecraft.renderManager.setRenderOutlines(false)
