@@ -14,7 +14,9 @@ import net.minecraft.client.renderer.vertex.DefaultVertexFormats
 import net.minecraft.client.shader.Framebuffer
 import net.minecraft.client.shader.ShaderLoader
 import net.minecraft.entity.Entity
+import net.minecraft.entity.EntityLiving
 import net.minecraft.entity.EntityLivingBase
+import net.minecraft.entity.item.EntityArmorStand
 import net.minecraft.entity.player.EntityPlayer
 import net.minecraft.scoreboard.Team
 import net.minecraft.scoreboard.Team.EnumVisible
@@ -171,7 +173,7 @@ object Outline {
               val dis = entity.getDistanceSqToEntity(minecraft.renderManager.renderViewEntity)
 
               val maxDistance = 64
-              if (dis <= (maxDistance * maxDistance) && canRenderName(entity) && (entity.alwaysRenderNameTagForRender || (entity.hasCustomName() && entity == minecraft.renderManager.pointedEntity))) {
+              if (dis <= (maxDistance * maxDistance) && canRenderName(entity)) {
                 val isSneaking = entity.isSneaking
                 val isThirdPersonFrontal = minecraft.renderManager.options.thirdPersonView == 2
                 val f2 = entity.height + 0.5F - (if (isSneaking) 0.25F else 0.0F)
@@ -255,9 +257,9 @@ object Outline {
     }
   }
 
-  private fun canRenderName(entity: Entity): Boolean {
+  private fun canRenderLivingBase(entity: EntityLivingBase): Boolean {
     val entityplayersp = Minecraft.getMinecraft().player
-    val flag: Boolean = !entity.isInvisibleToPlayer(entityplayersp)
+    val flag = !entity.isInvisibleToPlayer(entityplayersp)
     if (entity !== entityplayersp) {
       val team: Team? = entity.team
       val team1 = entityplayersp.team
@@ -272,6 +274,21 @@ object Outline {
       }
     }
     return Minecraft.isGuiEnabled() && entity !== minecraft.renderManager.renderViewEntity && flag && !entity.isBeingRidden
+  }
+
+  private fun canRenderName(entity: Entity): Boolean {
+    return when (entity) {
+      is EntityArmorStand -> entity.alwaysRenderNameTag
+
+      is EntityLiving -> canRenderLivingBase(entity) &&
+        (entity.alwaysRenderNameTagForRender ||
+          entity.hasCustomName() &&
+          entity == minecraft.renderManager.pointedEntity)
+
+      is EntityLivingBase -> canRenderLivingBase(entity)
+
+      else -> entity.alwaysRenderNameTagForRender && entity.hasCustomName()
+    }
   }
 
   private fun drawNametag(
